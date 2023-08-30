@@ -36,3 +36,15 @@ class User(db.Model):
         default="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg",
         nullable=True
     )
+
+    @classmethod
+    def create_user(cls, first_name, last_name, img_url):
+        """Creates a new User instance"""
+
+        return User(
+            first_name=first_name, last_name=last_name, img_url=img_url)
+
+    def get_full_name(self):
+        """Returns full name (first name and last name) as a string"""
+
+        return f"{self.first_name} {self.last_name}"

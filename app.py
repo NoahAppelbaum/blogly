@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, render_template, redirect, flash
+from flask import Flask, render_template, redirect, flash, request
 from models import db, connect_db, User
 # from flask_debugtoolbar import DebugToolbarExtension
 # TODO: ask why flask debug tool bar won't let us run flask
@@ -18,11 +18,13 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
 
+
 @app.get("/")
 def redirect_to_list():
     """ Redirects users to list of users """
 
     return redirect("/users")
+
 
 @app.get("/users")
 def list_users():
@@ -31,8 +33,33 @@ def list_users():
     users = User.query.all()
     return render_template("list.html", users=users)
 
+
 @app.get("/users/new")
 def add_user_form():
-    """Shows add form for users""""
+    """Shows add form for users"""
 
     return render_template("userform.html")
+
+
+@app.post("/users/new")
+def add_user():
+    """Process new user form and add to database"""
+    first_name = request.form["first-name"]
+    last_name = request.form["last-name"]
+    img_url = request.form["image-url"]
+
+    user = User.create_user(first_name, last_name, img_url)
+    db.session.add(user)
+    db.session.commit()
+
+    # TODO: check: do we want to redirect here? or send to "/" to redirect?
+    return redirect("/users")
+
+
+@app.get("/users/<int:user_id>")
+def show_user_profile(user_id):
+    """Shows detailed profile for specified user by URL ID"""
+
+    user = User.query.get(user_id)
+    render_template("userdetail.html",
+                    img_url=user.img_url, name=user.get_full_name())
