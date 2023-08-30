@@ -42,7 +42,7 @@ class User(db.Model):
         """Creates a new User instance"""
 
         return User(
-            first_name=first_name, last_name=last_name, img_url=img_url)
+            first_name=first_name, last_name=last_name, image_url=img_url)
 
     def get_full_name(self):
         """Returns full name (first name and last name) as a string"""

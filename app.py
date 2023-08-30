@@ -60,6 +60,21 @@ def add_user():
 def show_user_profile(user_id):
     """Shows detailed profile for specified user by URL ID"""
 
-    user = User.query.get(user_id)
-    render_template("userdetail.html",
-                    img_url=user.img_url, name=user.get_full_name())
+    user = User.query.get_or_404(user_id)
+
+    return render_template("userdetail.html",
+                        user_id = user.id,
+                        img_url=user.image_url,
+                        name=user.get_full_name())
+
+@app.get("/users/<int:user_id>/edit")
+def show_user_edit(user_id):
+    """Show the edit page for user"""
+
+    user = User.query.get_or_404(user_id)
+
+    return render_template("edituser.html",
+                           user_id=user.id,
+                           first_name=user.first_name,
+                           last_name=user.last_name,
+                           img_url=user.image_url)
