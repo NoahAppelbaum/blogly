@@ -7,14 +7,16 @@ Homepage List
 {% block content %}
 
 <div class="container">
+  <h1>Users</h1>
   <ul>
     {% for user in users %}
-    <li class="list-entry" id="user-{{user.id}}">
-      <img src="{{user.image_url}}" alt="" width="100">
-      <section>{{user.first_name}} {{user.last_name}}</section>
+    <li class="list-entry" id="user-{{ user.id }}">
+      <section>{{ user.first_name }} {{ user.last_name }}</section>
     </li>
     {% endfor %}
   </ul>
+  <button>Add User</button>
+
 </div>
 
 
