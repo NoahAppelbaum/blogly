@@ -5,7 +5,7 @@ import os
 from flask import Flask, render_template, redirect, flash, request
 from models import db, connect_db, User
 # from flask_debugtoolbar import DebugToolbarExtension
-# TODO: ask why flask debug tool bar won't let us run flask
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -17,6 +17,10 @@ app.config['SQLALCHEMY_ECHO'] = True
 # debug = DebugToolbarExtension(app)
 
 connect_db(app)
+
+DEFAULT_IMAGE_URL = (
+    "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+)
 
 
 @app.get("/")
@@ -30,7 +34,7 @@ def redirect_to_list():
 def list_users():
     """List users and show add form."""
 
-    users = User.query.all()
+    users = User.query.order_by('last_name', 'first_name').all()
     return render_template("list.html", users=users)
 
 
@@ -46,13 +50,12 @@ def add_user():
     """Process new user form and add to database"""
     first_name = request.form["first-name"]
     last_name = request.form["last-name"]
-    img_url = request.form["image-url"]
+    image_url = request.form["image-url"] or None
 
-    user = User.create_user(first_name, last_name, img_url)
+    user = User.create_user(first_name, last_name, image_url)
     db.session.add(user)
     db.session.commit()
 
-    # TODO: check: do we want to redirect here? or send to "/" to redirect?
     return redirect("/users")
 
 
@@ -63,9 +66,10 @@ def show_user_profile(user_id):
     user = User.query.get_or_404(user_id)
 
     return render_template("userdetail.html",
-                        user_id = user.id,
-                        img_url=user.image_url,
-                        name=user.get_full_name())
+                           user_id=user.id,
+                           image_url=user.image_url,
+                           name=user.get_full_name())
+
 
 @app.get("/users/<int:user_id>/edit")
 def show_user_edit(user_id):
@@ -77,4 +81,35 @@ def show_user_edit(user_id):
                            user_id=user.id,
                            first_name=user.first_name,
                            last_name=user.last_name,
-                           img_url=user.image_url)
+                           image_url=user.image_url)
+
+
+@app.post("/users/<int:user_id>/edit")
+def edit_user(user_id):
+    """processes user profile edit"""
+
+    first_name = request.form["first-name"]
+    last_name = request.form["last-name"]
+    image_url = request.form["image-url"] or None
+
+    user = User.query.get(user_id)
+
+    user.first_name = first_name
+    user.last_name = last_name
+    user.image_url = image_url
+
+    db.session.commit()
+
+    return redirect("/users")
+
+
+@app.post("/users/<int:user_id>/delete")
+def delete_user(user_id):
+    """deletes user from users db table"""
+
+    user = User.query.get(user_id)
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect("/users")

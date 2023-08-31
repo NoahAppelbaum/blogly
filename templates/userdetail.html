@@ -6,9 +6,11 @@ User Details
 
 {% block content %}
 <div class="container">
-  <img src="{{ img_url }}" alt="">
+  <img src="{{ image_url }}" alt="">
   <h1>{{ name }}</h1>
-  <a href="/users/{{ user_id }}" id="edit-btn">Edit</a>
-  <a href="#" id="delete-btn">Delete</a>
+  <a href="/users/{{ user_id }}/edit" id="edit-btn">Edit</a>
+  <form action="/users/{{ user_id }}/delete" method="POST">
+    <button type="submit" id="delete-btn">Delete</button>
+  </form>
 </div>
 {% endblock %}

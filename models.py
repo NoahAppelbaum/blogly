@@ -38,11 +38,11 @@ class User(db.Model):
     )
 
     @classmethod
-    def create_user(cls, first_name, last_name, img_url):
+    def create_user(cls, first_name, last_name, image_url):
         """Creates a new User instance"""
 
         return User(
-            first_name=first_name, last_name=last_name, image_url=img_url)
+            first_name=first_name, last_name=last_name, image_url=image_url)
 
     def get_full_name(self):
         """Returns full name (first name and last name) as a string"""
