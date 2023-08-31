@@ -3,7 +3,7 @@
 import os
 
 from flask import Flask, render_template, redirect, flash, request
-from models import db, connect_db, User, DEFAULT_IMAGE_URL
+from models import db, connect_db, User, DEFAULT_IMAGE_URL, Post
 from flask_debugtoolbar import DebugToolbarExtension
 
 
@@ -97,3 +97,28 @@ def delete_user(user_id):
     db.session.commit()
 
     return redirect("/users")
+
+# Routes for blog posts
+
+
+app.get("/users/<int:user_id>/posts/new")
+
+
+def show_new_post_form(user_id):
+    """displays new post form"""
+
+    user = User.query.get_or_404(user_id)
+    return render_template("postform.html", user)
+
+
+@app.post("/users/<int:user_id>/posts/new")
+def add_blog_post(user_id):
+    """Process new post form and add to database"""
+    post_title = request.form["post-title"]
+    post_content = request.form["post-content"]
+
+    blog_post = Post.create_blog_post(post_title, post_content, user_id)
+    db.session.add(blog_post)
+    db.session.commit()
+
+    return redirect(f"/users/{user_id}")
