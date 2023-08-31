@@ -9,9 +9,9 @@ Edit User Form
   <h1>Edit User</h1>
   <form action="/users/{{ user_id }}/edit" method="POST">
     <label for="first-name">First Name</label>
-    <input type="text" name="first-name" id="first-name" value="{{ first_name }}">
+    <input required type="text" name="first-name" id="first-name" value="{{ first_name }}">
     <label for="last-name">Last Name</label>
-    <input type="text" name="last-name" id="last-name" value="{{ last_name }}">
+    <input required type="text" name="last-name" id="last-name" value="{{ last_name }}">
     <label for="image-url">Image URL</label>
     <input type="url" name="image-url" id="image-url" value="{{ image_url }}">
     <a href="/users/{{ user_id }}" id="cancel-btn">Cancel</a>

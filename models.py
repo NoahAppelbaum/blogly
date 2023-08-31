@@ -34,7 +34,7 @@ class User(db.Model):
     image_url = db.Column(
         db.String,
         default="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg",
-        nullable=True
+        nullable=False
     )
 
     @classmethod

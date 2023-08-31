@@ -90,7 +90,7 @@ def edit_user(user_id):
 
     first_name = request.form["first-name"]
     last_name = request.form["last-name"]
-    image_url = request.form["image-url"] or None
+    image_url = request.form["image-url"] or DEFAULT_IMAGE_URL
 
     user = User.query.get(user_id)
 

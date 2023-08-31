@@ -4,8 +4,8 @@ os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
 
 from unittest import TestCase
 
-from app import app, db
-from models import DEFAULT_IMAGE_URL, User
+from app import app, db, DEFAULT_IMAGE_URL
+from models import User
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -54,9 +54,55 @@ class UserViewTestCase(TestCase):
         db.session.rollback()
 
     def test_list_users(self):
+        """Testing the users list page"""
         with self.client as c:
             resp = c.get("/users")
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
             self.assertIn("test1_first", html)
             self.assertIn("test1_last", html)
+
+    def test_user_page(self):
+        """Testing page for individual user details"""
+        with self.client as c:
+            resp = c.get(f"/users/{self.user_id}")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            test_user = User.query.get(self.user_id)
+            self.assertIn(f"{test_user.first_name}", html)
+            # testing to see if our default image is attached
+            self.assertIn(DEFAULT_IMAGE_URL, html)
+
+    def test_user_form(self):
+        """Testing the user form page"""
+        with self.client as c:
+            resp = c.get("/users/new")
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('<h1>Create User', html)
+
+    def test_making_user(self):
+        """Testing creating a user"""
+        with self.client as c:
+            resp = c.post("/users/new",
+                          data = {
+                            'first-name': 'Noah',
+                            'last-name': 'Appelbaum',
+                            'image-url': ''
+                          })
+            users_table = User.query.all()
+            first_names = [user.first_name for user in users_table]
+
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp.location, "/users")
+            self.assertIn('Noah', first_names)
+
+    def test_edit_user_form(self):
+        """Testing showing page for user"""
+        with self.client as c:
+            resp = c.get(f"/users/{self.user_id}/edit")
+            html = resp.get_data(as_text=True)
+            user = User.query.get(self.user_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(user.first_name, html)
+            self.assertIn(user.last_name, html)
