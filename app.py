@@ -65,6 +65,7 @@ def show_user_profile(user_id):
 
     user = User.query.get_or_404(user_id)
 
+    # FIXME: pass whole user instance instead
     return render_template("userdetail.html",
                            user_id=user.id,
                            image_url=user.image_url,
@@ -77,6 +78,7 @@ def show_user_edit(user_id):
 
     user = User.query.get_or_404(user_id)
 
+    # FIXME: pass whole user instance instead
     return render_template("edituser.html",
                            user_id=user.id,
                            first_name=user.first_name,
@@ -93,7 +95,7 @@ def edit_user(user_id):
     image_url = request.form["image-url"] or DEFAULT_IMAGE_URL
 
     user = User.query.get(user_id)
-
+    #FIXME: move this block above and edit/minimize 93-95
     user.first_name = first_name
     user.last_name = last_name
     user.image_url = image_url
@@ -106,7 +108,7 @@ def edit_user(user_id):
 @app.post("/users/<int:user_id>/delete")
 def delete_user(user_id):
     """deletes user from users db table"""
-
+    #FIXME: use 404 here as well
     user = User.query.get(user_id)
 
     db.session.delete(user)
