@@ -129,10 +129,37 @@ def show_blog_post(post_id):
 
     return render_template("blogpost.html", post=post)
 
-#FIXME: complete render template
-@app.get("posts/<int:post_id>/edit")
-def edit_blog_post(post_id):
+
+@app.get("/posts/<int:post_id>/edit")
+def show_blog_post_edit(post_id):
     """Shows blog post editing html"""
     post = Post.query.get_or_404(post_id)
 
-    return render_template("#", post=post)
+    return render_template("editblogpost.html", post=post)
+
+
+@app.post("/posts/<int:post_id>/edit")
+def edit_blog_post(post_id):
+    """processes blog post edit"""
+
+    post = Post.query.get(post_id)
+
+    post.title = request.form["post-title"]
+    post.content = request.form["post-content"]
+
+    db.session.commit()
+
+    return redirect(f"/posts/{post_id}")
+
+
+@app.post("/posts/<int:post_id>/delete")
+def delete_blog_post(post_id):
+    """deletes a blog post"""
+    post = Post.query.get_or_404(post_id)
+    # Need to capture author's id before deletion
+    user_id = post.user.id
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return redirect(f"/users/{user_id}")

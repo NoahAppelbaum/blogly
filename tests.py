@@ -1,4 +1,4 @@
-from models import User, DEFAULT_IMAGE_URL
+from models import User, DEFAULT_IMAGE_URL, Post
 from app import app, db
 from unittest import TestCase
 import os
@@ -105,3 +105,84 @@ class UserViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn(user.first_name, html)
             self.assertIn(user.last_name, html)
+
+
+class PostViewTestCase(TestCase):
+    """Test views for blog posts."""
+
+    def setUp(self):
+        """Create test client, add sample data."""
+
+        User.query.delete()
+        Post.query.delete()
+
+        self.client = app.test_client()
+
+        test_user = User(
+            first_name="test1_first",
+            last_name="test1_last",
+            image_url=None,
+        )
+
+        db.session.add(test_user)
+        db.session.commit()
+
+        test_post = Post(
+            title="test_title",
+            content="test_content",
+            user_id=test_user.id
+        )
+
+        db.session.add(test_post)
+        db.session.commit()
+
+        self.user_id = test_user.id
+        self.post_id = test_post.id
+
+    def tearDown(self):
+        """Clean up any fouled transaction."""
+        db.session.rollback()
+
+    def test_user_page(self):
+        """Testing page for listed blog post"""
+        with self.client as c:
+            resp = c.get(f"/users/{self.user_id}")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            test_post = Post.query.get(self.post_id)
+            self.assertIn(f"{test_post.title}", html)
+
+    # TODO: more...
+    # def test_user_form(self):
+    #     """Testing the user form page"""
+    #     with self.client as c:
+    #         resp = c.get("/users/new")
+    #         html = resp.get_data(as_text=True)
+    #         self.assertEqual(resp.status_code, 200)
+    #         self.assertIn('<h1>Create User', html)
+
+    # def test_making_user(self):
+    #     """Testing creating a user"""
+    #     with self.client as c:
+    #         resp = c.post("/users/new",
+    #                       data={
+    #                           'first-name': 'Noah',
+    #                           'last-name': 'Appelbaum',
+    #                           'image-url': ''
+    #                       })
+    #         users_table = User.query.all()
+    #         first_names = [user.first_name for user in users_table]
+
+    #         self.assertEqual(resp.status_code, 302)
+    #         self.assertEqual(resp.location, "/users")
+    #         self.assertIn('Noah', first_names)
+
+    # def test_edit_user_form(self):
+    #     """Testing showing page for user"""
+    #     with self.client as c:
+    #         resp = c.get(f"/users/{self.user_id}/edit")
+    #         html = resp.get_data(as_text=True)
+    #         user = User.query.get(self.user_id)
+    #         self.assertEqual(resp.status_code, 200)
+    #         self.assertIn(user.first_name, html)
+    #         self.assertIn(user.last_name, html)

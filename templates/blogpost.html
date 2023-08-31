@@ -14,8 +14,8 @@
     <p>By {{ post.user.get_full_name() }}</p>
   </div>
   <a href="/users/{{post.user.id}}" id="cancel-post-btn">Cancel</a>
-  <a href="#" id="edit-btn">Edit</a>
-  <form action="#" method="POST">
+  <a href="/posts/{{ post.id }}/edit" id="edit-btn">Edit</a>
+  <form action="/posts/{{ post.id }}/delete" method="POST">
     <button type="submit" id="delete-btn">Delete</button>
   </form>
 </div>
