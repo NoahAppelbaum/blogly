@@ -2,6 +2,10 @@
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
+DEFAULT_IMAGE_URL = (
+    "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+)
+
 
 def connect_db(app):
     """Connect to database."""
@@ -30,10 +34,10 @@ class User(db.Model):
         db.String,
         nullable=False
     )
-    #FIXME: set default to default url variable in app.py => import it
+
     image_url = db.Column(
         db.String,
-        default="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg",
+        default=DEFAULT_IMAGE_URL,
         nullable=False
     )
 

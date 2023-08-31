@@ -3,8 +3,8 @@
 import os
 
 from flask import Flask, render_template, redirect, flash, request
-from models import db, connect_db, User
-# from flask_debugtoolbar import DebugToolbarExtension
+from models import db, connect_db, User, DEFAULT_IMAGE_URL
+from flask_debugtoolbar import DebugToolbarExtension
 
 
 app = Flask(__name__)
@@ -12,15 +12,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     "DATABASE_URL", 'postgresql:///blogly')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-# app.config['SECRET_KEY'] = 'aouiergjhalwekjghio23u'
+app.config['SECRET_KEY'] = 'aouiergjhalwekjghio23u'
 
-# debug = DebugToolbarExtension(app)
+debug = DebugToolbarExtension(app)
 
 connect_db(app)
-
-DEFAULT_IMAGE_URL = (
-    "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-)
 
 
 @app.get("/")
@@ -65,11 +61,7 @@ def show_user_profile(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    # FIXME: pass whole user instance instead
-    return render_template("userdetail.html",
-                           user_id=user.id,
-                           image_url=user.image_url,
-                           name=user.get_full_name())
+    return render_template("userdetail.html", user=user)
 
 
 @app.get("/users/<int:user_id>/edit")
@@ -78,27 +70,18 @@ def show_user_edit(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    # FIXME: pass whole user instance instead
-    return render_template("edituser.html",
-                           user_id=user.id,
-                           first_name=user.first_name,
-                           last_name=user.last_name,
-                           image_url=user.image_url)
+    return render_template("edituser.html", user=user)
 
 
 @app.post("/users/<int:user_id>/edit")
 def edit_user(user_id):
     """processes user profile edit"""
 
-    first_name = request.form["first-name"]
-    last_name = request.form["last-name"]
-    image_url = request.form["image-url"] or DEFAULT_IMAGE_URL
-
     user = User.query.get(user_id)
-    #FIXME: move this block above and edit/minimize 93-95
-    user.first_name = first_name
-    user.last_name = last_name
-    user.image_url = image_url
+
+    user.first_name = request.form["first-name"]
+    user.last_name = request.form["last-name"]
+    user.image_url = request.form["image-url"] or DEFAULT_IMAGE_URL
 
     db.session.commit()
 
@@ -108,8 +91,7 @@ def edit_user(user_id):
 @app.post("/users/<int:user_id>/delete")
 def delete_user(user_id):
     """deletes user from users db table"""
-    #FIXME: use 404 here as well
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
 
     db.session.delete(user)
     db.session.commit()

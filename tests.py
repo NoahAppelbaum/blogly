@@ -1,11 +1,10 @@
+from models import User, DEFAULT_IMAGE_URL
+from app import app, db
+from unittest import TestCase
 import os
 
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
 
-from unittest import TestCase
-
-from app import app, db, DEFAULT_IMAGE_URL
-from models import User
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -85,10 +84,10 @@ class UserViewTestCase(TestCase):
         """Testing creating a user"""
         with self.client as c:
             resp = c.post("/users/new",
-                          data = {
-                            'first-name': 'Noah',
-                            'last-name': 'Appelbaum',
-                            'image-url': ''
+                          data={
+                              'first-name': 'Noah',
+                              'last-name': 'Appelbaum',
+                              'image-url': ''
                           })
             users_table = User.query.all()
             first_names = [user.first_name for user in users_table]
