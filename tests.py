@@ -1,9 +1,10 @@
+import os
+os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
+
 from models import User, DEFAULT_IMAGE_URL, Post
 from app import app, db
 from unittest import TestCase
-import os
 
-os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
 
 
 # Make Flask errors be real errors, rather than HTML pages with error info
@@ -29,6 +30,8 @@ class UserViewTestCase(TestCase):
         # As you add more models later in the exercise, you'll want to delete
         # all of their records before each test just as we're doing with the
         # User model below.
+
+        Post.query.delete()
         User.query.delete()
 
         self.client = app.test_client()
@@ -113,8 +116,8 @@ class PostViewTestCase(TestCase):
     def setUp(self):
         """Create test client, add sample data."""
 
-        User.query.delete()
         Post.query.delete()
+        User.query.delete()
 
         self.client = app.test_client()
 
@@ -142,8 +145,10 @@ class PostViewTestCase(TestCase):
     def tearDown(self):
         """Clean up any fouled transaction."""
         db.session.rollback()
+        Post.query.delete()
+        User.query.delete()
 
-    def test_user_page(self):
+    def test_user_page_with_posts(self):
         """Testing page for listed blog post"""
         with self.client as c:
             resp = c.get(f"/users/{self.user_id}")
@@ -152,37 +157,37 @@ class PostViewTestCase(TestCase):
             test_post = Post.query.get(self.post_id)
             self.assertIn(f"{test_post.title}", html)
 
-    # TODO: more...
-    # def test_user_form(self):
-    #     """Testing the user form page"""
-    #     with self.client as c:
-    #         resp = c.get("/users/new")
-    #         html = resp.get_data(as_text=True)
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('<h1>Create User', html)
 
-    # def test_making_user(self):
-    #     """Testing creating a user"""
-    #     with self.client as c:
-    #         resp = c.post("/users/new",
-    #                       data={
-    #                           'first-name': 'Noah',
-    #                           'last-name': 'Appelbaum',
-    #                           'image-url': ''
-    #                       })
-    #         users_table = User.query.all()
-    #         first_names = [user.first_name for user in users_table]
+    def test_post_form(self):
+        """Testing the post form page"""
+        with self.client as c:
+            resp = c.get(f"/users/{self.user_id}/posts/new")
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('<h1>Add Post for', html)
 
-    #         self.assertEqual(resp.status_code, 302)
-    #         self.assertEqual(resp.location, "/users")
-    #         self.assertIn('Noah', first_names)
+    def test_making_post(self):
+        """Testing creating a post"""
+        with self.client as c:
+            resp = c.post(f"/users/{self.user_id}/posts/new",
+                          data={
+                              'post-title': 'This is Our First Blog Post',
+                              'post-content': 'Hello World!'
+                          })
+            post_table = Post.query.all()
+            post_titles = [post.title for post in post_table]
 
-    # def test_edit_user_form(self):
-    #     """Testing showing page for user"""
-    #     with self.client as c:
-    #         resp = c.get(f"/users/{self.user_id}/edit")
-    #         html = resp.get_data(as_text=True)
-    #         user = User.query.get(self.user_id)
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn(user.first_name, html)
-    #         self.assertIn(user.last_name, html)
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp.location, f"/users/{self.user_id}")
+            self.assertIn('This is Our First Blog Post', post_titles)
+
+    #TODO: create redirected page test
+
+    def test_edit_post_form(self):
+        """Testing edit post page"""
+        with self.client as c:
+            resp = c.get(f"/posts/{self.post_id}/edit")
+            html = resp.get_data(as_text=True)
+            post = Post.query.get(self.post_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(post.title, html)

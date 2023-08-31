@@ -18,7 +18,7 @@ debug = DebugToolbarExtension(app)
 
 connect_db(app)
 
-
+#FIXME: referential integrity for app!
 @app.get("/")
 def redirect_to_list():
     """ Redirects users to list of users """
