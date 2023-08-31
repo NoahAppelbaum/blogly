@@ -8,6 +8,11 @@ User Details
 <div class="container">
   <img src="{{ user.image_url }}" alt="">
   <h1>{{ user.get_full_name() }}</h1>
+  <ul>
+    {% for post in user.posts %}
+    <li><a href="/posts/{{ post.id }}">{{ post.title }}</a></li>
+    {% endfor %}
+  </ul>
   <a href="/users/{{ user.id }}/edit" id="edit-btn">Edit</a>
   <form action="/users/{{ user.id }}/delete" method="POST">
     <button type="submit" id="delete-btn">Delete</button>

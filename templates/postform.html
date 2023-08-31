@@ -8,11 +8,11 @@ New Post Form
 <div class="container">
   <h1>Add Post for {{ user.get_full_name() }}</h1>
   <form action="/users/{{user.id}}/posts/new" method="POST">
-    <label for="post-title">First Name</label>
+    <label for="post-title">Title</label>
     <input required type="text" name="post-title" id="post-title">
-    <label for="post-content">Last Name</label>
+    <label for="post-content">Content</label>
     <input required type="text" name="post-content" id="post-content">
-    <a href="#" id="cancel-btn">Cancel</a>
+    <a href="/users/{{ user.id }}" id="cancel-post-btn">Cancel</a>
     <button type="submit">Add</button>
   </form>
 </div>

@@ -101,14 +101,12 @@ def delete_user(user_id):
 # Routes for blog posts
 
 
-app.get("/users/<int:user_id>/posts/new")
-
-
+@app.get("/users/<int:user_id>/posts/new")
 def show_new_post_form(user_id):
     """displays new post form"""
 
     user = User.query.get_or_404(user_id)
-    return render_template("postform.html", user)
+    return render_template("postform.html", user=user)
 
 
 @app.post("/users/<int:user_id>/posts/new")
@@ -122,3 +120,19 @@ def add_blog_post(user_id):
     db.session.commit()
 
     return redirect(f"/users/{user_id}")
+
+
+@app.get("/posts/<int:post_id>")
+def show_blog_post(post_id):
+    """Shows blog post html"""
+    post = Post.query.get_or_404(post_id)
+
+    return render_template("blogpost.html", post=post)
+
+#FIXME: complete render template
+@app.get("posts/<int:post_id>/edit")
+def edit_blog_post(post_id):
+    """Shows blog post editing html"""
+    post = Post.query.get_or_404(post_id)
+
+    return render_template("#", post=post)
