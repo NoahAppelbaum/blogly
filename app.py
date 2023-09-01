@@ -18,7 +18,7 @@ debug = DebugToolbarExtension(app)
 
 connect_db(app)
 
-#FIXME: referential integrity for app!
+
 @app.get("/")
 def redirect_to_list():
     """ Redirects users to list of users """
@@ -92,6 +92,9 @@ def edit_user(user_id):
 def delete_user(user_id):
     """deletes user from users db table"""
     user = User.query.get_or_404(user_id)
+
+    for post in user.posts:
+        db.session.delete(post)
 
     db.session.delete(user)
     db.session.commit()

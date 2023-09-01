@@ -1,10 +1,8 @@
 import os
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
-
 from models import User, DEFAULT_IMAGE_URL, Post
 from app import app, db
 from unittest import TestCase
-
 
 
 # Make Flask errors be real errors, rather than HTML pages with error info
@@ -157,7 +155,6 @@ class PostViewTestCase(TestCase):
             test_post = Post.query.get(self.post_id)
             self.assertIn(f"{test_post.title}", html)
 
-
     def test_post_form(self):
         """Testing the post form page"""
         with self.client as c:
@@ -174,14 +171,16 @@ class PostViewTestCase(TestCase):
                               'post-title': 'This is Our First Blog Post',
                               'post-content': 'Hello World!'
                           })
+            redirect_resp = c.get(
+                f"/users/{self.user_id}", follow_redirects=True)
             post_table = Post.query.all()
             post_titles = [post.title for post in post_table]
 
             self.assertEqual(resp.status_code, 302)
             self.assertEqual(resp.location, f"/users/{self.user_id}")
             self.assertIn('This is Our First Blog Post', post_titles)
-
-    #TODO: create redirected page test
+            # test redirect
+            self.assertEqual(redirect_resp.status_code, 200)
 
     def test_edit_post_form(self):
         """Testing edit post page"""
