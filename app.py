@@ -3,7 +3,7 @@
 import os
 
 from flask import Flask, render_template, redirect, flash, request
-from models import db, connect_db, User, DEFAULT_IMAGE_URL, Post
+from models import db, connect_db, User, DEFAULT_IMAGE_URL, Post, Tag, PostTag
 from flask_debugtoolbar import DebugToolbarExtension
 
 
@@ -166,3 +166,44 @@ def delete_blog_post(post_id):
     db.session.commit()
 
     return redirect(f"/users/{user_id}")
+
+# routes for tags and such
+
+@app.get("/tags")
+def get_tags():
+    """shows lists of all tags"""
+
+    tags = Tag.query.all()
+    return render_template("tagslist.html", tags=tags)
+
+@app.get("/tags/<int:tag_id>")
+def show_tag_details(tag_id):
+    """shows details about a tag"""
+
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template("tagdetail.html", tag=tag)
+
+@app.get("/tags/new")
+def add_tag():
+    """shows page to create a new tag"""
+
+    return render_template("tagform.html")
+
+@app.post("/tags/new")
+def create_tag():
+    """creates tag"""
+    tag_name = request.form["tag-name"]
+
+    tag = Tag(name=tag_name)
+
+    db.session.add(tag)
+    db.session.commit()
+
+    return redirect(f"/tags")
+
+@app.get("/tags/<int:tag_id>/edit")
+def show_tag_edit(tag_id):
+    """renders page for tag editing"""
+    tag = Tag.query.get_or_404(tag_id)
+    # TODO: add template later
+    return render_template("edittag.html", tag=tag)
